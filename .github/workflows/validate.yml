@@ -1,0 +1,40 @@
+name: Validate
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd6c # v6.0.2
+
+      - name: Validate repository invariants
+        run: node scripts/validate.mjs
+
+      - name: Download portable schemas
+        run: |
+          curl --fail --silent --show-error \
+            https://agent-plugins.org/schemas/1.0.0/plugin.schema.json \
+            --output "$RUNNER_TEMP/plugin.schema.json"
+          curl --fail --silent --show-error \
+            https://agent-plugins.org/schemas/1.0.0/mcp.schema.json \
+            --output "$RUNNER_TEMP/mcp.schema.json"
+
+      - name: Validate portable manifests
+        run: |
+          npx --yes ajv-cli@5.0.0 validate --spec=draft2020 \
+            -s "$RUNNER_TEMP/plugin.schema.json" \
+            -d plugin.json
+          npx --yes ajv-cli@5.0.0 validate --spec=draft2020 \
+            -s "$RUNNER_TEMP/mcp.schema.json" \
+            -d mcp.json
+
+      - name: Validate Claude plugin
+        run: npx --yes @anthropic-ai/claude-code@2.1.271 plugin validate . --strict

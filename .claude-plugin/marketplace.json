@@ -1,0 +1,32 @@
+{
+  "name": "laiki",
+  "owner": {
+    "name": "Laiki",
+    "url": "https://laiki.co"
+  },
+  "description": "Official Laiki plugin for AI agents.",
+  "plugins": [
+    {
+      "name": "laiki",
+      "displayName": "Laiki",
+      "source": "./",
+      "description": "Analyze marketing performance and manage Laiki dashboards, segments, and workflows through secure MCP access.",
+      "version": "0.1.0",
+      "author": {
+        "name": "Laiki",
+        "url": "https://laiki.co"
+      },
+      "homepage": "https://laiki.co",
+      "repository": "https://github.com/laiki-co/laiki-plugin",
+      "license": "MIT",
+      "category": "productivity",
+      "keywords": [
+        "marketing-analytics",
+        "mcp",
+        "dashboards",
+        "segments",
+        "workflows"
+      ]
+    }
+  ]
+}

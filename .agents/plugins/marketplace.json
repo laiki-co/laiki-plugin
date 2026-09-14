@@ -1,0 +1,20 @@
+{
+  "name": "laiki",
+  "interface": {
+    "displayName": "Laiki"
+  },
+  "plugins": [
+    {
+      "name": "laiki",
+      "source": {
+        "source": "url",
+        "url": "https://github.com/laiki-co/laiki-plugin.git"
+      },
+      "policy": {
+        "installation": "AVAILABLE",
+        "authentication": "ON_INSTALL"
+      },
+      "category": "Productivity"
+    }
+  ]
+}

@@ -1,0 +1,21 @@
+{
+  "name": "laiki",
+  "displayName": "Laiki",
+  "version": "0.1.0",
+  "description": "Analyze marketing performance and manage Laiki dashboards, segments, and workflows through secure MCP access.",
+  "author": {
+    "name": "Laiki",
+    "url": "https://laiki.co"
+  },
+  "homepage": "https://laiki.co",
+  "repository": "https://github.com/laiki-co/laiki-plugin",
+  "license": "MIT",
+  "mcpServers": "./.mcp.json",
+  "keywords": [
+    "laiki",
+    "marketing-analytics",
+    "mcp",
+    "dashboards",
+    "workflows"
+  ]
+}

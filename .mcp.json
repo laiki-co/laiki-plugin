@@ -1,0 +1,8 @@
+{
+  "mcpServers": {
+    "laiki": {
+      "type": "http",
+      "url": "https://mcp.laiki.co/mcp"
+    }
+  }
+}
