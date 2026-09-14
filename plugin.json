@@ -21,19 +21,19 @@
     "com.openai": {
       "interface": {
         "displayName": "Laiki",
-        "shortDescription": "Analyze marketing data and manage Laiki resources.",
+        "shortDescription": "Analyze marketing with Laiki",
         "longDescription": "Connect ChatGPT and Codex to Laiki for marketing analysis, dashboards, segments, and workflow authoring.",
         "developerName": "Laiki",
         "category": "Productivity",
         "capabilities": ["Read", "Write"],
         "websiteURL": "https://laiki.co",
+        "supportURL": "https://github.com/laiki-co/laiki-plugin/issues",
         "privacyPolicyURL": "https://app.laiki.co/privacy",
         "termsOfServiceURL": "https://app.laiki.co/terms",
         "defaultPrompt": [
           "Analyze my recent marketing performance in Laiki.",
           "Build a dashboard for my key acquisition metrics.",
-          "Create a segment from criteria I describe.",
-          "Help me author a Laiki workflow safely."
+          "Help me build a Laiki segment or workflow safely."
         ],
         "brandColor": "#0553F1",
         "logo": "./assets/logo.png"

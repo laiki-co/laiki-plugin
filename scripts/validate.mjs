@@ -41,6 +41,53 @@ if (portable.repository !== repositoryUrl || claude.repository !== repositoryUrl
   throw new Error(`Repository URL must be ${repositoryUrl}`);
 }
 
+const openAiInterface = portable.extensions?.["com.openai"]?.interface;
+if (
+  typeof openAiInterface !== "object" ||
+  openAiInterface === null ||
+  Array.isArray(openAiInterface)
+) {
+  throw new Error("OpenAI interface metadata is required");
+}
+
+if (
+  typeof openAiInterface.shortDescription !== "string" ||
+  openAiInterface.shortDescription.length === 0 ||
+  openAiInterface.shortDescription.length > 30
+) {
+  throw new Error("OpenAI shortDescription must contain 1-30 characters");
+}
+
+const prompts = openAiInterface.defaultPrompt;
+if (
+  !Array.isArray(prompts) ||
+  prompts.length === 0 ||
+  prompts.length > 3 ||
+  prompts.some(
+    (prompt) =>
+      typeof prompt !== "string" || prompt.length === 0 || prompt.length > 128,
+  )
+) {
+  throw new Error("OpenAI defaultPrompt must contain 1-3 prompts of 1-128 characters");
+}
+
+for (const field of [
+  "privacyPolicyURL",
+  "supportURL",
+  "termsOfServiceURL",
+  "websiteURL",
+]) {
+  const value = openAiInterface[field];
+  if (typeof value !== "string" || value.length > 1_024) {
+    throw new Error(`OpenAI ${field} must be an HTTPS URL within 1,024 characters`);
+  }
+  try {
+    if (new URL(value).protocol !== "https:") throw new Error("not HTTPS");
+  } catch {
+    throw new Error(`OpenAI ${field} must be an HTTPS URL within 1,024 characters`);
+  }
+}
+
 const privateMarkers = [
   ["github.com", "laiki-co", "laiki2"].join("/"),
   ["@laiki", "laiki2"].join("/"),
