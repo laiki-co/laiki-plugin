@@ -1,0 +1,21 @@
+{
+  "schemaVersion": 1,
+  "skills": [
+    {
+      "name": "analyze-marketing-performance",
+      "treeSha256": "c31210d71c04042f39c5053da9ac850ff2442558272bb9dc75a323ace626698c"
+    },
+    {
+      "name": "build-laiki-dashboard",
+      "treeSha256": "4cff4611e89cfd07fccbf2da37a97c20fdc72144f192838a14e25efe14bbddd5"
+    },
+    {
+      "name": "build-laiki-segment",
+      "treeSha256": "904283ce8541671a16e5ae44414cb71c1e87ce71e2fc4f1c6796054dce957074"
+    },
+    {
+      "name": "build-laiki-workflow",
+      "treeSha256": "db25d5842fed15a9e40f424c7983ef93f6a9891bd218af240f01525d18fa002e"
+    }
+  ]
+}
