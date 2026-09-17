@@ -43,6 +43,13 @@ distribution. They do not publish Laiki to Anthropic's public community
 marketplace or OpenAI's universal Plugins Directory. Public listings require
 each vendor's submission, review, and publication process.
 
+## Releases
+
+Plugin releases use Semantic Versioning independently from Laiki application
+releases. Curated release history lives in [`CHANGELOG.md`](CHANGELOG.md), and
+signed tags plus GitHub Releases provide immutable package snapshots.
+Maintainer procedure lives in [`RELEASING.md`](RELEASING.md).
+
 OpenAI's registered application mapping will be added after the submission
 portal issues the production app identifier. No placeholder identifier is
 committed.

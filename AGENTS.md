@@ -22,11 +22,15 @@ Public distribution repository for the Laiki agent plugin.
 - OpenAI-specific metadata lives under `extensions.com.openai` in root
   `plugin.json`.
 - Keep one plugin version across every vendor manifest and marketplace entry.
+- Plugin releases use stable Semantic Versioning and signed annotated tags.
+- Keep `CHANGELOG.md` curated and user-facing; release dates come from the
+  tagged commit's stored date.
 - Validate before commit with `node scripts/validate.mjs` and Claude's strict
   plugin validator.
 
 ## Git
 
 - Conventional commits: `type(scope): message`.
+- Commit scopes use kebab-case and are at most 20 characters.
 - Synced skill changes arrive through reviewed pull requests. Never auto-merge
   them.

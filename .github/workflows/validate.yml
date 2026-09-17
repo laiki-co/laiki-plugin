@@ -14,9 +14,28 @@ jobs:
     steps:
       - name: Check out repository
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd6c # v6.0.2
+        with:
+          fetch-depth: 0
+
+      - name: Set up Bun
+        uses: oven-sh/setup-bun@0c5077e51419868618aeaa5fe8019c62421857d6 # v2
+        with:
+          bun-version: 1.4.0
+
+      - name: Install dependencies
+        run: bun install --frozen-lockfile
+
+      - name: Validate commit messages
+        env:
+          BASE_SHA: ${{ github.event.pull_request.base.sha || github.event.before }}
+          HEAD_SHA: ${{ github.event.pull_request.head.sha || github.sha }}
+        run: bun commitlint --from "$BASE_SHA" --to "$HEAD_SHA" --verbose
 
       - name: Validate repository invariants
-        run: node scripts/validate.mjs
+        run: bun run validate
+
+      - name: Test release tooling
+        run: bun test
 
       - name: Download portable schemas
         run: |

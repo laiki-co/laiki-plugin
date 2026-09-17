@@ -1,0 +1,221 @@
+name: Release
+
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: Stable SemVer to release, with or without v prefix
+        required: true
+        type: string
+      target:
+        description: Commit to tag; defaults to main HEAD
+        required: false
+        type: string
+      latest:
+        description: Mark this release as latest
+        required: true
+        type: boolean
+        default: false
+
+concurrency:
+  group: plugin-release
+  cancel-in-progress: false
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    name: Sign tag and publish release
+    runs-on: ubuntu-latest
+    environment: plugin-release
+    env:
+      GH_TOKEN: ${{ github.token }}
+      RELEASE_SIGNER: juanpujol
+      RELEASE_SIGNER_ID: "30832"
+      RELEASE_SIGNER_NAME: Juan Pujol
+      REPO: ${{ github.repository }}
+      TARGET: ${{ inputs.target || 'HEAD' }}
+      VERSION: ${{ inputs.version }}
+    steps:
+      - name: Guard branch
+        if: github.ref != 'refs/heads/main'
+        run: |
+          echo "Plugin releases must run on main, got ${{ github.ref }}"
+          exit 1
+
+      - name: Check out main
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd6c # v6.0.2
+        with:
+          fetch-depth: 0
+          ref: main
+
+      - name: Validate plugin
+        run: node scripts/validate.mjs
+
+      - name: Validate release candidate
+        id: candidate
+        run: |
+          set -euo pipefail
+          version="${VERSION#v}"
+          node scripts/release/check.mjs --version "$version" --target "$TARGET"
+          sha=$(git rev-parse "$TARGET^{commit}")
+          tag="v$version"
+          if gh release view "$tag" --repo "$REPO" >/dev/null 2>&1; then
+            echo "$tag release already exists"
+            exit 1
+          fi
+          node scripts/release/notes.mjs "$version" > "$RUNNER_TEMP/release-notes.md"
+          echo "sha=$sha" >> "$GITHUB_OUTPUT"
+          echo "tag=$tag" >> "$GITHUB_OUTPUT"
+          echo "version=$version" >> "$GITHUB_OUTPUT"
+
+      - name: Preflight signing key
+        env:
+          RELEASE_SIGNING_KEY: ${{ secrets.RELEASE_SIGNING_KEY }}
+        run: |
+          set -euo pipefail
+          key_file="$RUNNER_TEMP/release-signing-key"
+          trap 'rm -f "$key_file"' EXIT
+          if [ -z "${RELEASE_SIGNING_KEY:-}" ]; then
+            echo "RELEASE_SIGNING_KEY is not configured"
+            exit 1
+          fi
+          umask 077
+          printf '%s\n' "$RELEASE_SIGNING_KEY" > "$key_file"
+          public_key=$(ssh-keygen -y -f "$key_file" | awk '{print $1" "$2}')
+          expected_key=$(awk -v signer="$RELEASE_SIGNER" '$1 == signer {print $2" "$3}' release-signers)
+          if [ -z "$expected_key" ] || [ "$public_key" != "$expected_key" ]; then
+            echo "release signing key does not match release-signers"
+            exit 1
+          fi
+          if ! gh api "users/$RELEASE_SIGNER/ssh_signing_keys" \
+            | jq -e --arg key "$public_key" 'any(.[]; .key == $key)' >/dev/null; then
+            echo "release signing key is not registered for $RELEASE_SIGNER"
+            exit 1
+          fi
+          printf 'preflight' | ssh-keygen -Y sign -n git -f "$key_file" >/dev/null
+
+      - name: Create signed tag and release
+        env:
+          RELEASE_SIGNING_KEY: ${{ secrets.RELEASE_SIGNING_KEY }}
+          SHA: ${{ steps.candidate.outputs.sha }}
+          TAG: ${{ steps.candidate.outputs.tag }}
+        run: |
+          set -euo pipefail
+          key_file="$RUNNER_TEMP/release-signing-key"
+          release_id=""
+          release_create_attempted=false
+          tag_pushed=false
+
+          find_release_id() {
+            gh api --paginate "repos/$REPO/releases?per_page=100" \
+              | jq -rs --arg tag "$TAG" '[.[][] | select(.tag_name == $tag) | .id] | first // empty'
+          }
+
+          cleanup() {
+            status=$?
+            trap - EXIT
+            rm -f "$key_file"
+            if [ "$status" -ne 0 ]; then
+              safe_to_delete_tag=true
+              if [ -z "$release_id" ] && [ "$release_create_attempted" = true ]; then
+                release_id=$(find_release_id 2>/dev/null || true)
+              fi
+              if [ -n "$release_id" ]; then
+                draft=$(gh api "repos/$REPO/releases/$release_id" --jq .draft || true)
+                if [ "$draft" = true ]; then
+                  if gh api -X DELETE "repos/$REPO/releases/$release_id"; then
+                    remaining_release_id=$(find_release_id 2>/dev/null || true)
+                    if [ -n "$remaining_release_id" ]; then
+                      safe_to_delete_tag=false
+                      echo "Could not confirm $TAG draft deletion; preserving tag"
+                    fi
+                  else
+                    safe_to_delete_tag=false
+                    echo "Could not delete $TAG draft; preserving tag"
+                  fi
+                else
+                  safe_to_delete_tag=false
+                  echo "$TAG release is not a confirmed draft; preserving tag"
+                fi
+              elif [ "$release_create_attempted" = true ]; then
+                safe_to_delete_tag=false
+                echo "Could not determine $TAG release state; preserving tag"
+              fi
+              if [ "$tag_pushed" = true ] && [ "$safe_to_delete_tag" = true ]; then
+                git push origin ":refs/tags/$TAG" || true
+              fi
+            fi
+            exit "$status"
+          }
+          trap cleanup EXIT
+
+          umask 077
+          printf '%s\n' "$RELEASE_SIGNING_KEY" > "$key_file"
+          git config user.name "$RELEASE_SIGNER_NAME"
+          git config user.email "$RELEASE_SIGNER_ID+$RELEASE_SIGNER@users.noreply.github.com"
+          git config gpg.format ssh
+          git config gpg.ssh.program ssh-keygen
+          git config user.signingkey "$key_file"
+          git tag -s "$TAG" "$SHA" -m "$TAG"
+          git push origin "refs/tags/$TAG"
+          tag_pushed=true
+
+          ref_json=$(gh api "repos/$REPO/git/ref/tags/$TAG")
+          tag_sha=$(jq -r '.object.sha' <<< "$ref_json")
+          attempt=0
+          while true; do
+            tag_json=$(gh api "repos/$REPO/git/tags/$tag_sha")
+            target_sha=$(jq -r '.object.sha' <<< "$tag_json")
+            verified=$(jq -r '.verification.verified' <<< "$tag_json")
+            if [ "$target_sha" = "$SHA" ] && [ "$verified" = true ]; then
+              break
+            fi
+            attempt=$((attempt + 1))
+            if [ "$attempt" -ge 3 ]; then
+              echo "$TAG verification failed: target=$target_sha verified=$verified"
+              exit 1
+            fi
+            sleep 5
+          done
+
+          release_create_attempted=true
+          gh release create "$TAG" \
+            --repo "$REPO" \
+            --verify-tag \
+            --draft \
+            --title "$TAG" \
+            --notes-file "$RUNNER_TEMP/release-notes.md"
+          release_id=$(gh api "repos/$REPO/releases/tags/$TAG" --jq .id)
+          release_json=$(gh api "repos/$REPO/releases/$release_id")
+          draft=$(jq -r .draft <<< "$release_json")
+          expected_body=$(cat "$RUNNER_TEMP/release-notes.md")
+          actual_body=$(jq -r .body <<< "$release_json")
+          if [ "$draft" != true ] || [ "$actual_body" != "$expected_body" ]; then
+            echo "$TAG draft release differs from verified notes"
+            exit 1
+          fi
+
+          gh api -X PATCH "repos/$REPO/releases/$release_id" -F draft=false >/dev/null
+          published=$(gh api "repos/$REPO/releases/$release_id" --jq '.draft == false')
+          if [ "$published" != true ]; then
+            echo "$TAG release did not publish"
+            exit 1
+          fi
+          if [ "${{ inputs.latest }}" = true ]; then
+            gh release edit "$TAG" --repo "$REPO" --latest
+          fi
+
+      - name: Release summary
+        env:
+          TAG: ${{ steps.candidate.outputs.tag }}
+          SHA: ${{ steps.candidate.outputs.sha }}
+        run: |
+          {
+            echo "## Released $TAG"
+            echo ""
+            echo "- Commit: \`$SHA\`"
+            echo "- Signed tag: verified"
+            echo "- Release: https://github.com/$REPO/releases/tag/$TAG"
+          } >> "$GITHUB_STEP_SUMMARY"
