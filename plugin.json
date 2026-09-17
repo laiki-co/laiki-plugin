@@ -1,7 +1,7 @@
 {
   "$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
   "name": "laiki",
-  "version": "0.2.0",
+  "version": "0.2.1",
   "description": "Analyze marketing performance and manage Laiki dashboards, segments, and workflows through secure MCP access.",
   "author": {
     "name": "Laiki",
@@ -36,6 +36,7 @@
           "Help me build a Laiki segment or workflow safely."
         ],
         "brandColor": "#0553F1",
+        "composerIcon": "./assets/logo.png",
         "logo": "./assets/logo.png"
       }
     }
