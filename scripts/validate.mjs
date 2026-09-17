@@ -24,6 +24,10 @@ if (new Set(versions).size !== 1 || versions.some((version) => !version)) {
   throw new Error(`Plugin versions differ: ${versions.join(", ")}`);
 }
 
+if (!/^(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)$/.test(portable.version)) {
+  throw new Error(`Plugin version must use stable SemVer: ${portable.version}`);
+}
+
 const endpoints = [
   portableMcp.mcpServers?.laiki?.url,
   claudeMcp.mcpServers?.laiki?.url,
@@ -120,7 +124,7 @@ const privateMarkers = [
 async function walk(directory) {
   const entries = await readdir(directory, { withFileTypes: true });
   for (const entry of entries) {
-    if (entry.name === ".git") continue;
+    if (entry.name === ".git" || entry.name === "node_modules") continue;
     const path = join(directory, entry.name);
     const stats = await lstat(path);
     if (stats.isSymbolicLink()) {
