@@ -12,6 +12,7 @@ const portableMcp = await readJson("mcp.json");
 const claude = await readJson(".claude-plugin/plugin.json");
 const claudeMarketplace = await readJson(".claude-plugin/marketplace.json");
 const claudeMcp = await readJson(".mcp.json");
+const codexMarketplace = await readJson(".agents/plugins/marketplace.json");
 
 const versions = [
   portable.version,
@@ -36,6 +37,22 @@ if (portable.name !== "laiki" || claude.name !== "laiki") {
   throw new Error("Plugin name must remain laiki");
 }
 
+const codexEntries = codexMarketplace.plugins;
+const codexEntry = Array.isArray(codexEntries) ? codexEntries[0] : undefined;
+if (
+  codexMarketplace.name !== "laiki" ||
+  codexMarketplace.interface?.displayName !== "Laiki" ||
+  !Array.isArray(codexEntries) ||
+  codexEntries.length !== 1 ||
+  codexEntry?.name !== "laiki" ||
+  codexEntry?.source?.source !== "local" ||
+  codexEntry?.source?.path !== "./"
+) {
+  throw new Error(
+    "Codex marketplace must expose the repository-root Laiki plugin locally",
+  );
+}
+
 const repositoryUrl = "https://github.com/laiki-co/laiki-plugin";
 if (portable.repository !== repositoryUrl || claude.repository !== repositoryUrl) {
   throw new Error(`Repository URL must be ${repositoryUrl}`);
@@ -48,6 +65,13 @@ if (
   Array.isArray(openAiInterface)
 ) {
   throw new Error("OpenAI interface metadata is required");
+}
+
+if (
+  openAiInterface.composerIcon !== "./assets/logo.png" ||
+  openAiInterface.logo !== "./assets/logo.png"
+) {
+  throw new Error("OpenAI interface must use the packaged Laiki logo");
 }
 
 if (

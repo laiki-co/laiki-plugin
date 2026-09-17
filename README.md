@@ -33,9 +33,15 @@ For OAuth steps, read [`SETUP.md`](SETUP.md).
 ## Configuration files
 
 - `plugin.json` and `mcp.json`: portable Agent Plugins v1 package.
-- `.claude-plugin/`: Claude plugin and marketplace metadata.
+- `.claude-plugin/`: Claude plugin and repository-marketplace metadata.
 - `.mcp.json`: Claude-compatible remote MCP configuration.
-- `.agents/plugins/marketplace.json`: ChatGPT and Codex marketplace metadata.
+- `.agents/plugins/marketplace.json`: ChatGPT and Codex repository-marketplace
+  metadata.
+
+Repository marketplaces support direct installation, testing, and team
+distribution. They do not publish Laiki to Anthropic's public community
+marketplace or OpenAI's universal Plugins Directory. Public listings require
+each vendor's submission, review, and publication process.
 
 OpenAI's registered application mapping will be added after the submission
 portal issues the production app identifier. No placeholder identifier is
