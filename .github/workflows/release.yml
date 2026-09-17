@@ -187,7 +187,11 @@ jobs:
             --draft \
             --title "$TAG" \
             --notes-file "$RUNNER_TEMP/release-notes.md"
-          release_id=$(gh api "repos/$REPO/releases/tags/$TAG" --jq .id)
+          release_id=$(find_release_id)
+          if [ -z "$release_id" ]; then
+            echo "Could not find $TAG draft release"
+            exit 1
+          fi
           release_json=$(gh api "repos/$REPO/releases/$release_id")
           draft=$(jq -r .draft <<< "$release_json")
           expected_body=$(cat "$RUNNER_TEMP/release-notes.md")
