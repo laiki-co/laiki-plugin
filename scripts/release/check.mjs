@@ -44,12 +44,19 @@ export function parseReleaseArgs(args) {
 }
 
 export function releaseDate(changelog, version) {
-  const escaped = version.replaceAll(".", "\\.");
-  const match = changelog.match(
-    new RegExp(`^## \\[${escaped}\\] - (\\d{4}-\\d{2}-\\d{2})$`, "m"),
-  );
-  if (!match?.[1]) fail(`CHANGELOG.md is missing dated release ${version}`);
-  return match[1];
+  if (!stableSemverPattern.test(version)) {
+    fail("release version must use stable MAJOR.MINOR.PATCH SemVer");
+  }
+
+  const prefix = `## [${version}] - `;
+  const line = changelog
+    .split(/\r?\n/)
+    .find((candidate) => candidate.startsWith(prefix));
+  const date = line?.slice(prefix.length);
+  if (!date || !/^\d{4}-\d{2}-\d{2}$/.test(date)) {
+    fail(`CHANGELOG.md is missing dated release ${version}`);
+  }
+  return date;
 }
 
 export function checkRelease({ target, version }) {
