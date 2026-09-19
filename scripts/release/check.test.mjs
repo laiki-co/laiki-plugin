@@ -21,3 +21,18 @@ test("reads the stored historical release date", () => {
     "2026-09-17",
   );
 });
+
+test("rejects unsafe release versions before matching the changelog", () => {
+  assert.throws(() =>
+    releaseDate("## [1.2.3.*] - 2026-09-17\n", "1.2.3.*"),
+  );
+});
+
+test("requires an exact dated release heading", () => {
+  assert.throws(() =>
+    releaseDate("## [1.2.30] - 2026-09-17\n", "1.2.3"),
+  );
+  assert.throws(() =>
+    releaseDate("## [1.2.3] - September 17, 2026\n", "1.2.3"),
+  );
+});
