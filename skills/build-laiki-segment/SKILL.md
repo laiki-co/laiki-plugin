@@ -1,12 +1,12 @@
 ---
 name: build-laiki-segment
 description: Create, preview, duplicate, rename, or safely replace Laiki segment rules when a user asks to define an audience or change saved matching criteria.
-compatibility: Requires a Laiki MCP connection exposing search and execute.
+compatibility: Requires a Laiki MCP connection exposing search, execute and report_missing_capability.
 ---
 
 # Build a Laiki segment
 
-Use Laiki MCP through its two public tools only: `search` discovers operations and `execute` invokes a discovered operation. Operation names below are not direct public tools.
+Use Laiki MCP through its three public tools only: `search` discovers operations, `execute` invokes a discovered operation and `report_missing_capability` reports a missing capability. Operation names below are not direct public tools.
 
 ## Resolve and inspect
 
