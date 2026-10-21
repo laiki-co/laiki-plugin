@@ -1,12 +1,12 @@
 ---
 name: build-laiki-workflow
 description: Create, duplicate, or safely modify a Laiki workflow draft when a user asks to author graph structure, configure nodes, or patch an existing workflow.
-compatibility: Requires a Laiki MCP connection exposing search and execute.
+compatibility: Requires a Laiki MCP connection exposing search, execute and report_missing_capability.
 ---
 
 # Build a Laiki workflow
 
-Use Laiki MCP through its two public tools only: `search` discovers operations and `execute` invokes a discovered operation. Operation names below are not direct public tools.
+Use Laiki MCP through its three public tools only: `search` discovers operations, `execute` invokes a discovered operation and `report_missing_capability` reports a missing capability. Operation names below are not direct public tools.
 
 ## Resolve and discover
 
