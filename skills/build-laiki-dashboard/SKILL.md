@@ -1,12 +1,12 @@
 ---
 name: build-laiki-dashboard
 description: Create or safely edit a Laiki dashboard when a user asks for a reporting view, metric widget, dashboard copy, or widget configuration change.
-compatibility: Requires a Laiki MCP connection exposing search and execute.
+compatibility: Requires a Laiki MCP connection exposing search, execute and report_missing_capability.
 ---
 
 # Build a Laiki dashboard
 
-Use Laiki MCP through its two public tools only: `search` discovers operations and `execute` invokes a discovered operation. Operation names below are not direct public tools.
+Use Laiki MCP through its three public tools only: `search` discovers operations, `execute` invokes a discovered operation and `report_missing_capability` reports a missing capability. Operation names below are not direct public tools.
 
 ## Resolve the dashboard
 
