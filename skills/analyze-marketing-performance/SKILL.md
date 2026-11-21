@@ -1,12 +1,12 @@
 ---
 name: analyze-marketing-performance
 description: Analyze and compare marketing performance in Laiki when a user asks about channel, campaign, account, property, lead, or event results and needs an evidence-based decision.
-compatibility: Requires a Laiki MCP connection exposing search and execute.
+compatibility: Requires a Laiki MCP connection exposing search, execute and report_missing_capability.
 ---
 
 # Analyze marketing performance
 
-Use Laiki MCP through its two public tools only: `search` discovers operations and `execute` invokes a discovered operation. Operation names below are not direct public tools.
+Use Laiki MCP through its three public tools only: `search` discovers operations, `execute` invokes a discovered operation and `report_missing_capability` reports a missing capability. Operation names below are not direct public tools.
 
 ## Resolve the question
 
