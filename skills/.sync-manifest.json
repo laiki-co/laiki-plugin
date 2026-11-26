@@ -3,19 +3,23 @@
   "skills": [
     {
       "name": "analyze-marketing-performance",
-      "treeSha256": "71a6c5dabc13e9734a8322b58dd06cb8b8244458aae94e982a309f2c45b49001"
+      "treeSha256": "9c5483ad26b6663f36bb6c00ff79350deed685509087f3d3943a3b229e2411e4"
     },
     {
       "name": "build-laiki-dashboard",
-      "treeSha256": "5832dcceb3ba6ec0fafc5624c6edea69a0ea8ace49724501bc81a336fbfe684a"
+      "treeSha256": "65356c99db54260eaef138f237fe558caf1263d3e78fbe2e2b127cee23abcd8c"
     },
     {
       "name": "build-laiki-segment",
-      "treeSha256": "71814f320e3738fb61927a6a22608a3a480997d91dcf72b3eaaa85f4cd74c7b1"
+      "treeSha256": "a08794464b641aa6995b25f17edd325b69cbad3390f21d461cd6e9efaf8ab589"
     },
     {
       "name": "build-laiki-workflow",
-      "treeSha256": "ddecac4d5faaf2b096386929734ac66b5fcdb350e00c4b3b711065186252bce9"
+      "treeSha256": "97306acc6e9b39f319ec8150d4834f4d4be0b808a3b4da34740e9be8ee6932cc"
+    },
+    {
+      "name": "debug-laiki-workflow",
+      "treeSha256": "b30fa9a9583e75f2f8ffd925965a10c5531d8ee24641e20d6acb5ca17d8a49d4"
     }
   ]
 }
